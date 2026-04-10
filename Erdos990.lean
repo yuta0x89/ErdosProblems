@@ -3,22 +3,22 @@ import Mathlib.Analysis.SpecialFunctions.Complex.Analytic
 import Mathlib.LinearAlgebra.Lagrange
 
 /-!
-## Erdős problem 990: proof sketch
+## Erdős problem 990
 
-This file is a **proof sketch** for the counterexample family from
-`arXiv:2604.06609v1`, Section `p990`.
+This file formalizes the full argument for Erdős problem 990 from
+`arXiv:2604.06609`, Section 5 (“A counterexample to sparse Erdős–Turán”).
 
-The intended decomposition is:
+The development is organized as follows:
 
 1. a Vandermonde / Lagrange interpolation identity,
-2. an exponential-polynomial with a zero of order `N + 1`,
-3. the logarithmic reparametrization turning it into a sparse polynomial,
-4. an asymptotic estimate showing `M(f) < 3` for `K` large,
-5. the final contradiction to a sparse Erdős--Turán type bound.
+2. an exponential polynomial with a zero of order `N + 1`,
+3. a logarithmic reparametrization producing a sparse polynomial,
+4. an asymptotic estimate showing `M (sparsePoly N K) < 3` for large `K`,
+5. the construction of an explicit counterexample family, and
+6. the final contradiction to an absolute sparse Erdős--Turán type bound.
 
-The statements below are deliberately close to the paper, but are arranged so that
-one can attack them with the Mathlib and `PrimeNumberTheoremAnd` ingredients identified
-in the companion survey.
+The statements are arranged to follow the paper closely while exposing
+intermediate lemmas in a form convenient for Mathlib.
 -/
 
 set_option autoImplicit false
