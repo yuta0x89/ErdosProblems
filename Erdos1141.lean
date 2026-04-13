@@ -21,8 +21,9 @@ The main development intentionally mirrors the style of Pietro Monticone's
 
 ## External inputs
 
-1. `pollack_theorem_1_3` (axiom): a convenient specialization of Pollack's Theorem 1.3
-   to the quadratic character attached to `ℚ(√d)`.
+1. `Pollack17.theorem_1_3` (axiom): Pollack's Theorem 1.3 in the literal
+   `DirichletCharacter`-based form from Pollack's paper
+   <https://www.ams.org/journals/proc/2017-145-07/S0002-9939-2016-13432-1/S0002-9939-2016-13432-1.pdf>.
 2. `mertens_third_theorem` (axiom): the same axiomized form as in Pietro Monticone's
    `Erdos237.lean`.
 
@@ -38,8 +39,9 @@ Given `n`, write `a*n = u^2*d` with `d` squarefree.
   We **do not** introduce a separate lemma producing a small odd prime `p ∤ a*n`.
   Instead, factor the fixed coefficient `a = v^2*dₐ` with `dₐ` squarefree.
 
-  - If `dₐ > 1`, then `dₐ ∣ a`, hence `dₐ ∣ 4*a*n`.  Pollack applied to the *fixed*
-    squarefree part `dₐ` again gives an odd prime `p ≲ (4*a*n)^(3/8)` with `p ∤ a*n`.
+  - If `dₐ > 1`, then from `a = v^2*dₐ` we get `4*dₐ ∣ 4*a*n`.  Pollack applied to the *fixed*
+    squarefree part `dₐ` with modulus `4*a*n` again gives an odd prime `p ≲ (4*a*n)^(3/8)`
+    with `p ∤ a*n`.
     Since `a*n` is a square, the congruence `a*x^2 ≡ n [MOD p]` is automatically solvable,
     so the same counting contradiction applies.
 
@@ -49,6 +51,45 @@ Given `n`, write `a*n = u^2*d` with `d` squarefree.
 
 Thus the only deep inputs remain Pollack Theorem 1.3 and Mertens' third theorem.
 -/
+
+
+noncomputable section
+
+namespace Pollack17
+
+/-- The analytic cutoff `m^(1/4 + ε)` appearing in Theorem 1.3. -/
+def residuePrimeUpperBound (m : ℕ) (ε : ℝ) : ℝ :=
+  Real.rpow (m : ℝ) ((1 / 4 : ℝ) + ε)
+
+/--
+The finite set of primes `ℓ` with `ℓ ≤ m^(1/4 + ε)` and `χ(ℓ) = 1`.
+
+This definition does **not** assume `χ` is quadratic; the quadraticity hypothesis
+belongs only to `theorem_1_3`, matching the statement of the paper.
+-/
+def residuePrimesUpTo (m : ℕ) (χ : DirichletCharacter ℂ m) (ε : ℝ) : Finset ℕ := by
+  classical
+  exact
+    ((Finset.range (Nat.ceil (residuePrimeUpperBound m ε) + 1)).filter fun ℓ =>
+      Nat.Prime ℓ ∧
+      (ℓ : ℝ) ≤ residuePrimeUpperBound m ε ∧
+      χ (ℓ : ZMod m) = (1 : ℂ))
+
+/--
+Pollack, *Bounds for the First Several Prime Character Nonresidues*, Theorem 1.3.
+-/
+axiom theorem_1_3
+    (ε A : ℝ) (hε : 0 < ε) (hA : 0 < A) :
+    ∃ m0 : ℕ, ∀ m : ℕ,
+      m > m0 →
+      ∀ χ : DirichletCharacter ℂ m,
+        MulChar.IsQuadratic χ →
+          Real.rpow (Real.log (m : ℝ)) A ≤
+            ((residuePrimesUpTo m χ ε).card : ℝ)
+
+end Pollack17
+
+end
 
 namespace Erdos1141
 
@@ -84,23 +125,149 @@ def candidateKs (a n p : ℕ) : Finset ℕ :=
 
 /-! ## Axioms from analytic number theory -/
 
-/-- **Pollack Theorem 1.3**, in the specialized form needed here.
+/-- A lightweight paper-facing formalization of “`χ` is a quadratic character modulo `m`”.
 
-For fixed `A ≥ 1` and `ε > 0`, every sufficiently large modulus `m` and every squarefree
-`d > 1` whose quadratic-character conductor divides `m` (for the present application it is
-enough to assume `4*d ∣ m`) yield many odd primes `p ≤ m^(1/4+ε)` with `p ∤ m` and `d`
-a quadratic residue mod `p`.
+We record exactly the properties used by Pollack's theorem and by the specialization to the
+Jacobi symbol `jacobiSym d`. -/
+structure QuadraticCharacterMod (m : ℕ) where
+  toFun : ℕ → ℤ
+  periodic : ∀ {a b : ℕ}, Nat.ModEq m a b → toFun a = toFun b
+  map_non_coprime : ∀ {a : ℕ}, ¬ Nat.Coprime a m → toFun a = 0
+  map_coprime : ∀ {a : ℕ}, Nat.Coprime a m → toFun a = 1 ∨ toFun a = -1
+  map_mul : ∀ {a b : ℕ}, Nat.Coprime a m → Nat.Coprime b m →
+    toFun (a * b) = toFun a * toFun b
 
-This is the only deep input used in the non-square case, and also in the square case when the
-fixed coefficient `a` itself is not a square. -/
-axiom pollack_theorem_1_3 (A : ℕ) (ε : ℝ) (hA : 1 ≤ A) (hε : 0 < ε) :
-    ∃ M0 : ℕ, ∀ {m d : ℕ}, M0 ≤ m → 1 < d → Squarefree d → 4 * d ∣ m →
-      ∃ P : Finset ℕ,
-        ((Real.log m) ^ A : ℝ) ≤ (P.card : ℝ) ∧
-        ∀ p ∈ P,
-          p.Prime ∧ p ≠ 2 ∧ ¬ p ∣ m ∧
-          (p : ℝ) ≤ Real.rpow (m : ℝ) (((1 : ℝ) / 4) + ε) ∧
-          QuadResidueMod d p
+instance {m : ℕ} : CoeFun (QuadraticCharacterMod m) (fun _ ↦ ℕ → ℤ) :=
+  ⟨QuadraticCharacterMod.toFun⟩
+
+/-- A quadratic character modulo `m` takes the value `1` at `1`. -/
+lemma QuadraticCharacterMod.map_one {m : ℕ} (χ : QuadraticCharacterMod m) : χ 1 = 1 := by
+  have hcop : Nat.Coprime 1 m := by
+    simpa using (Nat.coprime_one_left_iff m).2 trivial
+  rcases χ.map_coprime hcop with h1 | h1
+  · exact h1
+  · have : False := by
+      have hmul : χ (1 * 1) = χ 1 * χ 1 := χ.map_mul (a := 1) (b := 1) hcop hcop
+      have hbad : (-1 : ℤ) = 1 := by
+        simpa [h1] using hmul
+      norm_num at hbad
+    exact this.elim
+
+/-- A unit of `ZMod m` has a representative coprime to `m`. -/
+lemma natCoprime_val_of_isUnit_zmod {m : ℕ} [NeZero m] {a : ZMod m} (ha : IsUnit a) :
+    Nat.Coprime a.val m := by
+  rw [← ha.unit_spec]
+  exact ZMod.val_coe_unit_coprime ha.unit
+
+/-- A nonunit of `ZMod m` has no representative coprime to `m`. -/
+lemma not_natCoprime_val_of_not_isUnit_zmod {m : ℕ} [NeZero m] {a : ZMod m}
+    (ha : ¬ IsUnit a) : ¬ Nat.Coprime a.val m := by
+  intro hcop
+  apply ha
+  simpa [ZMod.natCast_zmod_val a] using (ZMod.isUnit_iff_coprime a.val m).2 hcop
+
+/-- Repackage a paper-facing quadratic character as a `DirichletCharacter` over `ℂ`. -/
+def QuadraticCharacterMod.toDirichletCharacterComplex {m : ℕ} [NeZero m]
+    (χ : QuadraticCharacterMod m) : DirichletCharacter ℂ m where
+  toFun a := (χ a.val : ℂ)
+  map_one' := by
+    have hperiodic : χ ((1 : ZMod m).val) = χ 1 := by
+      apply χ.periodic
+      rw [← ZMod.natCast_eq_natCast_iff]
+      simpa using (ZMod.natCast_zmod_val (1 : ZMod m))
+    rw [hperiodic]
+    simpa using congrArg (fun z : ℤ => (z : ℂ)) χ.map_one
+  map_mul' := by
+    intro a b
+    by_cases ha : IsUnit a
+    · by_cases hb : IsUnit b
+      · have hcopa : Nat.Coprime a.val m := natCoprime_val_of_isUnit_zmod ha
+        have hcopb : Nat.Coprime b.val m := natCoprime_val_of_isUnit_zmod hb
+        have hperiodic : χ ((a * b).val) = χ (a.val * b.val) := by
+          apply χ.periodic
+          rw [← ZMod.natCast_eq_natCast_iff]
+          calc
+            (((a * b).val : ℕ) : ZMod m) = a * b := by
+              simpa using (ZMod.natCast_zmod_val (a * b))
+            _ = ((a.val : ZMod m) * (b.val : ZMod m)) := by
+              simpa using congrArg2 (· * ·)
+                (ZMod.natCast_zmod_val a).symm (ZMod.natCast_zmod_val b).symm
+            _ = ((a.val * b.val : ℕ) : ZMod m) := by simp
+        have hperiodicC : (χ ((a * b).val) : ℂ) = (χ (a.val * b.val) : ℂ) :=
+          congrArg (fun z : ℤ => (z : ℂ)) hperiodic
+        rw [hperiodicC]
+        simpa using congrArg (fun z : ℤ => (z : ℂ)) (χ.map_mul hcopa hcopb)
+      · have hnon : ¬ IsUnit (a * b) := by
+          intro hab
+          exact hb (isUnit_of_mul_isUnit_right hab)
+        have hzero_mul : χ ((a * b).val) = 0 :=
+          χ.map_non_coprime (not_natCoprime_val_of_not_isUnit_zmod hnon)
+        have hzero_b : χ b.val = 0 :=
+          χ.map_non_coprime (not_natCoprime_val_of_not_isUnit_zmod hb)
+        simp [hzero_mul, hzero_b]
+    · have hnon : ¬ IsUnit (a * b) := by
+        intro hab
+        exact ha (isUnit_of_mul_isUnit_left hab)
+      have hzero_mul : χ ((a * b).val) = 0 :=
+        χ.map_non_coprime (not_natCoprime_val_of_not_isUnit_zmod hnon)
+      have hzero_a : χ a.val = 0 :=
+        χ.map_non_coprime (not_natCoprime_val_of_not_isUnit_zmod ha)
+      simp [hzero_mul, hzero_a]
+  map_nonunit' := by
+    intro a ha
+    have hzero : χ a.val = 0 :=
+      χ.map_non_coprime (not_natCoprime_val_of_not_isUnit_zmod ha)
+    simp [hzero]
+
+@[simp] lemma QuadraticCharacterMod.toDirichletCharacterComplex_apply {m : ℕ} [NeZero m]
+    (χ : QuadraticCharacterMod m) (a : ZMod m) :
+    χ.toDirichletCharacterComplex a = (χ a.val : ℂ) := rfl
+
+@[simp] lemma QuadraticCharacterMod.toDirichletCharacterComplex_apply_nat
+    {m n : ℕ} [NeZero m] (χ : QuadraticCharacterMod m) :
+    χ.toDirichletCharacterComplex (n : ZMod m) = (χ n : ℂ) := by
+  change ((χ ((n : ZMod m).val) : ℂ) = (χ n : ℂ))
+  simpa [ZMod.val_natCast] using
+    congrArg (fun z : ℤ => (z : ℂ)) (χ.periodic (Nat.mod_modEq n m))
+
+/-- The associated complex Dirichlet character is quadratic in Pollack's sense. -/
+lemma QuadraticCharacterMod.toDirichletCharacterComplex_isQuadratic
+    {m : ℕ} [NeZero m] (χ : QuadraticCharacterMod m) :
+    MulChar.IsQuadratic (χ.toDirichletCharacterComplex) := by
+  intro a
+  by_cases ha : IsUnit a
+  · have hcop : Nat.Coprime a.val m := natCoprime_val_of_isUnit_zmod ha
+    rcases χ.map_coprime hcop with h1 | hneg
+    · right
+      left
+      simp [h1]
+    · right
+      right
+      simp [hneg]
+  · left
+    have hcop : ¬ Nat.Coprime a.val m := not_natCoprime_val_of_not_isUnit_zmod ha
+    simp [χ.map_non_coprime hcop]
+
+/-- If the associated complex Dirichlet character takes the value `1` at a natural number,
+then the original integer-valued character also takes the value `1` there. -/
+lemma QuadraticCharacterMod.eq_one_of_toDirichletCharacterComplex_apply_nat_eq_one
+    {m n : ℕ} [NeZero m] (χ : QuadraticCharacterMod m)
+    (hχ : χ.toDirichletCharacterComplex (n : ZMod m) = (1 : ℂ)) :
+    χ n = 1 := by
+  have happly : χ.toDirichletCharacterComplex (n : ZMod m) = (χ n : ℂ) :=
+    χ.toDirichletCharacterComplex_apply_nat (n := n)
+  have hχ' : (χ n : ℂ) = (1 : ℂ) := by
+    rw [← happly]
+    exact hχ
+  by_cases hcop : Nat.Coprime n m
+  · rcases χ.map_coprime hcop with h1 | hneg
+    · exact h1
+    · exfalso
+      rw [hneg] at hχ'
+      norm_num at hχ'
+  · exfalso
+    rw [χ.map_non_coprime hcop] at hχ'
+    norm_num at hχ'
 
 /-- **Mertens' third theorem**, in exactly the same axiomized form as in
 Pietro Monticone's `Erdos237.lean`. -/
@@ -116,7 +283,7 @@ lemma exists_squarefree_factorization (m : ℕ) :
   exact ⟨u, d, h, hd⟩
 
 /-- `1` is always a quadratic residue. -/
-lemma one_is_quad_residue (p : ℕ) : QuadResidueMod 1 p := by
+private lemma one_is_quad_residue (p : ℕ) : QuadResidueMod 1 p := by
   refine ⟨1, ?_⟩
   simpa using (Nat.ModEq.refl (1 : ℕ))
 
@@ -136,7 +303,7 @@ lemma le_pollack_modulus {a n : ℕ} (ha : 1 ≤ a) : n ≤ 4 * a * n := by
   simpa [Nat.mul_assoc] using Nat.mul_le_mul_right n hmul
 
 /-- If `u^2*d = a*n`, then the conductor-relevant multiple `4*d` divides `4*a*n`. -/
-lemma squarefree_factor_dvd_pollack_modulus {a n u d : ℕ}
+private lemma squarefree_factor_dvd_pollack_modulus {a n u d : ℕ}
     (hdecomp : u ^ 2 * d = a * n) : 4 * d ∣ 4 * a * n := by
   refine ⟨u ^ 2, ?_⟩
   calc
@@ -145,7 +312,7 @@ lemma squarefree_factor_dvd_pollack_modulus {a n u d : ℕ}
     _ = (4 * d) * (u ^ 2) := by ac_rfl
 
 /-- If `v^2*d = a`, then the conductor-relevant multiple `4*d` divides `4*a*n`. -/
-lemma squarefree_coeff_dvd_pollack_modulus {a n v d : ℕ}
+private lemma squarefree_coeff_dvd_pollack_modulus {a n v d : ℕ}
     (hadecomp : v ^ 2 * d = a) : 4 * d ∣ 4 * a * n := by
   refine ⟨v ^ 2 * n, ?_⟩
   calc
@@ -160,46 +327,198 @@ lemma not_dvd_an_of_not_dvd_pollack_modulus {a n p : ℕ}
   simpa [Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm] using dvd_mul_of_dvd_right hp 4
 
 /-- If the squarefree part of `a` is `1`, then `a` is a square. -/
-lemma coeff_is_square_of_squarefree_part_eq_one {a v d : ℕ}
+private lemma coeff_is_square_of_squarefree_part_eq_one {a v d : ℕ}
     (hadecomp : v ^ 2 * d = a)
     (hd1 : d = 1) :
     a = v ^ 2 := by
   simpa [hd1] using hadecomp.symm
 
+/-- If `4*d ∣ m`, then `d ∣ m`. -/
+lemma d_dvd_of_four_d_dvd {d m : ℕ} (hdvd : 4 * d ∣ m) : d ∣ m := by
+  exact dvd_trans (show d ∣ 4 * d by exact ⟨4, by ac_rfl⟩) hdvd
+
+/-- If `4*d ∣ m`, then `2 ∣ m`. -/
+lemma two_dvd_of_four_d_dvd {d m : ℕ} (hdvd : 4 * d ∣ m) : 2 ∣ m := by
+  exact dvd_trans (show 2 ∣ 4 * d by exact ⟨2 * d, by ac_rfl⟩) hdvd
+
+/-- A square root in `ZMod p` yields a witness for `QuadResidueMod d p`. -/
+private lemma quadResidueMod_of_isSquare_zmod {d p : ℕ} (h : IsSquare (d : ZMod p)) :
+    QuadResidueMod d p := by
+  rcases h with ⟨x, hx⟩
+  cases p with
+  | zero =>
+      refine ⟨x.val, ?_⟩
+      rw [Nat.ModEq, Nat.mod_zero, Nat.mod_zero]
+      simpa [pow_two] using congrArg ZMod.val hx.symm
+  | succ p =>
+      refine ⟨x.val, ?_⟩
+      rw [← ZMod.natCast_eq_natCast_iff]
+      calc
+        (((x.val ^ 2 : ℕ) : ZMod (p + 1))) = (((x.val : ℕ) : ZMod (p + 1)) ^ 2) := by
+          simp
+        _ = x ^ 2 := by
+          simpa using congrArg (fun y : ZMod (p + 1) ↦ y ^ 2) (ZMod.natCast_val x)
+        _ = (d : ZMod (p + 1)) := by
+          simpa [pow_two] using hx.symm
+
+/-! ## Bridge from Pollack's literal theorem to the Jacobi-symbol specialization -/
+
+/-- The quadratic character attached to `d`, viewed modulo any multiple `m` of `4*d`.
+
+On integers coprime to `m` it is the Jacobi symbol `jacobiSym d`; on non-coprime integers it
+is `0`.  The congruence invariance modulo `m` comes from `jacobiSym.mod_right`.
+
+This is the canonical character used in the rest of the file; we no longer keep a separate
+`pollack_theorem_1_3` compatibility wrapper. -/
+def attachedQuadraticCharacter (d m : ℕ) (hdvd : 4 * d ∣ m) :
+    QuadraticCharacterMod m where
+  toFun n := if Nat.Coprime n m then jacobiSym (d : ℤ) n else 0
+  periodic := by
+    intro a b hmod
+    have hcop : Nat.Coprime a m ↔ Nat.Coprime b m := by
+      rw [Nat.coprime_iff_gcd_eq_one, Nat.coprime_iff_gcd_eq_one, hmod.gcd_eq]
+    by_cases ha : Nat.Coprime a m
+    · have hb : Nat.Coprime b m := hcop.mp ha
+      have hmod' : Nat.ModEq (4 * d) a b := hmod.of_dvd hdvd
+      have ha2 : Nat.Coprime a 2 := ha.coprime_dvd_right (two_dvd_of_four_d_dvd hdvd)
+      have hb2 : Nat.Coprime b 2 := hb.coprime_dvd_right (two_dvd_of_four_d_dvd hdvd)
+      have haOdd : Odd a := (Nat.coprime_two_right).1 ha2
+      have hbOdd : Odd b := (Nat.coprime_two_right).1 hb2
+      have hJ : jacobiSym (d : ℤ) a = jacobiSym (d : ℤ) b := by
+        calc
+          jacobiSym (d : ℤ) a = jacobiSym (d : ℤ) (a % (4 * d)) := by
+            simpa using jacobiSym.mod_right (d : ℤ) haOdd
+          _ = jacobiSym (d : ℤ) (b % (4 * d)) := by
+            simpa using congrArg (fun t : ℕ ↦ jacobiSym (d : ℤ) t) hmod'
+          _ = jacobiSym (d : ℤ) b := by
+            simpa using (jacobiSym.mod_right (d : ℤ) hbOdd).symm
+      rw [if_pos ha, if_pos hb]
+      exact hJ
+    · have hb : ¬ Nat.Coprime b m := mt hcop.mpr ha
+      rw [if_neg ha, if_neg hb]
+  map_non_coprime := by
+    intro a ha
+    rw [if_neg ha]
+  map_coprime := by
+    intro a ha
+    have had : Nat.Coprime a d := ha.coprime_dvd_right (d_dvd_of_four_d_dvd hdvd)
+    have hgcd : Int.gcd (d : ℤ) a = 1 := by
+      simpa [Int.gcd_eq_natAbs, Nat.gcd_comm] using had.gcd_eq_one
+    rw [if_pos ha]
+    exact jacobiSym.eq_one_or_neg_one (a := (d : ℤ)) (b := a) hgcd
+  map_mul := by
+    intro a b ha hb
+    have ha2 : Nat.Coprime a 2 := ha.coprime_dvd_right (two_dvd_of_four_d_dvd hdvd)
+    have hb2 : Nat.Coprime b 2 := hb.coprime_dvd_right (two_dvd_of_four_d_dvd hdvd)
+    have haOdd : Odd a := (Nat.coprime_two_right).1 ha2
+    have hbOdd : Odd b := (Nat.coprime_two_right).1 hb2
+    have ha0 : a ≠ 0 := by
+      intro h0
+      simpa [h0] using haOdd
+    have hb0 : b ≠ 0 := by
+      intro h0
+      simpa [h0] using hbOdd
+    split_ifs at * with hab
+    · exact jacobiSym.mul_right' (d : ℤ) ha0 hb0
+    · exact (hab (Nat.coprime_mul_iff_left.2 ⟨ha, hb⟩)).elim
+
+@[simp] lemma attachedQuadraticCharacter_apply_coprime {d m n : ℕ}
+    (hdvd : 4 * d ∣ m) (hn : Nat.Coprime n m) :
+    attachedQuadraticCharacter d m hdvd n = jacobiSym (d : ℤ) n := by
+  simp [attachedQuadraticCharacter, hn]
+
+@[simp] lemma attachedQuadraticCharacter_apply_not_coprime {d m n : ℕ}
+    (hdvd : 4 * d ∣ m) (hn : ¬ Nat.Coprime n m) :
+    attachedQuadraticCharacter d m hdvd n = 0 := by
+  simp [attachedQuadraticCharacter, hn]
+
+/-- If the attached character takes the value `1` at a prime `p`, then `p` is an odd prime
+not dividing `m`, and `d` is a quadratic residue modulo `p`.
+
+This is the exact downstream interface needed in the two contradiction arguments. -/
+private lemma attachedQuadraticCharacter_spec
+    {d m p : ℕ} (hdvd : 4 * d ∣ m)
+    (hp : p.Prime)
+    (hχ : attachedQuadraticCharacter d m hdvd p = 1) :
+    p ≠ 2 ∧ ¬ p ∣ m ∧ QuadResidueMod d p := by
+  have hcop : Nat.Coprime p m := by
+    by_contra hnot
+    have hzero : attachedQuadraticCharacter d m hdvd p = 0 := by
+      simp [attachedQuadraticCharacter, hnot]
+    have h01 : (0 : ℤ) = 1 := by
+      simpa [hzero] using hχ
+    norm_num at h01
+  have hpndvd : ¬ p ∣ m := (hp.coprime_iff_not_dvd).1 hcop
+  have hp2 : p ≠ 2 := by
+    intro hp2
+    apply hpndvd
+    simpa [hp2] using two_dvd_of_four_d_dvd hdvd
+  have hJacobi : jacobiSym (d : ℤ) p = 1 := by
+    rw [attachedQuadraticCharacter_apply_coprime hdvd hcop] at hχ
+    exact hχ
+  haveI : Fact p.Prime := ⟨hp⟩
+  have hsqInt : IsSquare ((d : ℤ) : ZMod p) :=
+    ZMod.isSquare_of_jacobiSym_eq_one (a := (d : ℤ)) (p := p) hJacobi
+  have hsq : IsSquare (d : ZMod p) := by
+    rcases hsqInt with ⟨x, hx⟩
+    refine ⟨x, ?_⟩
+    simpa using hx
+  exact ⟨hp2, hpndvd, quadResidueMod_of_isSquare_zmod hsq⟩
+
 /-! ## Pollack specialized to the exact bound used in the paper -/
 
-/-- The `A = 1`, `ε = 1/8` specialization of Pollack, reduced to mere existence of one prime.
-The proof is a short extraction from `pollack_theorem_1_3`. -/
+/-- The `A = 1`, `ε = 1/8` specialization of Pollack, reduced to the only output needed later:
+the existence of one Pollack-sized odd prime with `d` a quadratic residue modulo `p`.
+
+This is the abstraction boundary for the rest of the file.  All later arguments use only this
+lemma, and never the full cardinality statement of `Pollack17.theorem_1_3`. -/
 lemma exists_small_prime_from_pollack :
-    ∃ M0 : ℕ, ∀ {m d : ℕ}, M0 ≤ m → 1 < d → Squarefree d → 4 * d ∣ m →
+    ∃ M0 : ℕ, ∀ {m d : ℕ}, M0 ≤ m → 4 * d ∣ m →
       ∃ p : ℕ,
         p.Prime ∧ p ≠ 2 ∧ ¬ p ∣ m ∧
         (p : ℝ) ≤ Real.rpow (m : ℝ) ((3 : ℝ) / 8) ∧
         QuadResidueMod d p := by
-  obtain ⟨M0, hPollack⟩ :=
-    pollack_theorem_1_3 1 ((1 : ℝ) / 8) (by decide : 1 ≤ 1) (by norm_num)
-  refine ⟨max M0 2, ?_⟩
-  intro m d hm hdGt hdSq hdvd
-  obtain ⟨P, hcard, hP⟩ := hPollack (le_trans (le_max_left _ _) hm) hdGt hdSq hdvd
+  classical
+  obtain ⟨m0, hm0⟩ :=
+    Pollack17.theorem_1_3 ((1 : ℝ) / 8) 1 (by norm_num) (by norm_num)
+  refine ⟨max (m0 + 1) 2, ?_⟩
+  intro m d hm hdvd
+  have hm2 : 2 ≤ m := le_trans (le_max_right _ _) hm
+  have hmpos : 0 < m := lt_of_lt_of_le (by decide : 0 < 2) hm2
+  haveI : NeZero m := ⟨Nat.ne_of_gt hmpos⟩
+  set χ : QuadraticCharacterMod m := attachedQuadraticCharacter d m hdvd
+  set P : Finset ℕ :=
+    Pollack17.residuePrimesUpTo m χ.toDirichletCharacterComplex ((1 : ℝ) / 8)
+  have hgt : m > m0 := by
+    exact Nat.lt_of_lt_of_le (Nat.lt_succ_self m0) (le_trans (le_max_left _ _) hm)
+  have hcard : Real.rpow (Real.log (m : ℝ)) 1 ≤ (P.card : ℝ) := by
+    simpa [P] using
+      hm0 m hgt χ.toDirichletCharacterComplex χ.toDirichletCharacterComplex_isQuadratic
   have hcard' : Real.log (m : ℝ) ≤ (P.card : ℝ) := by
     simpa using hcard
-  have hm2 : 2 ≤ m := le_trans (le_max_right _ _) hm
   have hm1_real : (1 : ℝ) < (m : ℝ) := by
     exact_mod_cast (lt_of_lt_of_le (by decide : 1 < 2) hm2)
   have hlog_pos : 0 < Real.log (m : ℝ) := Real.log_pos hm1_real
   have hcard_pos : 0 < P.card := by
     by_contra hcard_not
     have hcard0 : P.card = 0 := Nat.eq_zero_of_not_pos hcard_not
+    have hcard_pos_real : (0 : ℝ) < (P.card : ℝ) := lt_of_lt_of_le hlog_pos hcard'
     have : (0 : ℝ) < 0 := by
-      simpa [hcard0] using lt_of_lt_of_le hlog_pos hcard'
+      simpa [hcard0] using hcard_pos_real
     exact (lt_irrefl (0 : ℝ)) this
   obtain ⟨p, hpP⟩ := Finset.card_pos.mp hcard_pos
-  obtain ⟨hpp, hp2, hpndvd, hpbound, hres⟩ := hP p hpP
+  have hpP' : p ∈ Pollack17.residuePrimesUpTo m χ.toDirichletCharacterComplex ((1 : ℝ) / 8) := by
+    simpa [P] using hpP
+  simp [Pollack17.residuePrimesUpTo, Pollack17.residuePrimeUpperBound] at hpP'
+  rcases hpP' with ⟨_, hpp, hpbound, hχpComplex⟩
+  have hχp : χ p = 1 := by
+    exact χ.eq_one_of_toDirichletCharacterComplex_apply_nat_eq_one
+      (n := p) (by simpa using hχpComplex)
+  have hspec : p ≠ 2 ∧ ¬ p ∣ m ∧ QuadResidueMod d p := by
+    simpa [χ] using attachedQuadraticCharacter_spec (d := d) (m := m) (p := p) hdvd hpp hχp
+  rcases hspec with ⟨hp2, hpndvd, hres⟩
   refine ⟨p, hpp, hp2, hpndvd, ?_, hres⟩
-  have hexp : (((1 : ℝ) / 4) + (1 : ℝ) / 8) = (3 : ℝ) / 8 := by
-    ring_nf
-  rw [hexp] at hpbound
-  exact hpbound
+  convert hpbound using 1 <;> norm_num
 
 /-! ## Turning quadratic residuosity into solvability of `a*x^2 ≡ n [MOD p]` -/
 
@@ -252,7 +571,7 @@ lemma solvable_of_squarefree_part
 
 /-- In the square case `a*n = u^2`, every odd prime `p ∤ a*n` makes `a*x^2 ≡ n [MOD p]`
 solvable. -/
-lemma solvable_of_square_case
+private lemma solvable_of_square_case
     {a n u p : ℕ}
     (hsq : u ^ 2 = a * n)
     (hp : p.Prime)
@@ -267,7 +586,7 @@ lemma solvable_of_square_case
 /-- If `Pa a n` holds, then for any prime `p` there is at most one candidate `k`.
 Indeed, `p ∣ n - a*k^2` and primality force `n - a*k^2 = p`, and that equation has at most one
 positive solution in `k`. -/
-lemma candidateKs_card_le_one
+private lemma candidateKs_card_le_one
     {a n p : ℕ}
     (ha : 1 ≤ a)
     (hPa : Pa a n)
@@ -752,7 +1071,7 @@ there are more than one candidates.
 This is exactly where the Möbius-inversion count and `mertens_third_theorem` enter.
 In this formalization, it is enough to count one chosen root class modulo `p`; the
 factor `2` from the paper is not needed. -/
-lemma many_candidates_of_pollack_size
+private lemma many_candidates_of_pollack_size
     (a : ℕ)
     (ha : 1 ≤ a) :
     ∃ N0 : ℕ, ∀ {n p : ℕ},
@@ -1012,10 +1331,34 @@ lemma many_candidates_of_pollack_size
     exact le_trans (by exact_mod_cast hcard_ge) hmap_le
   exact lt_of_lt_of_le (by decide : 1 < 2) hge_nat
 
+/-- Contradiction engine for the two Pollack-driven branches.
+
+Once we have one odd prime `p` of Pollack-size such that `p ∤ a*n` and
+`a*x^2 ≡ n [MOD p]` is solvable, the counting argument rules out `Pa a n`. -/
+private lemma not_Pa_of_good_prime
+    (a : ℕ) (ha : 1 ≤ a) :
+    ∃ N0 : ℕ, ∀ {n p : ℕ},
+      N0 ≤ n →
+      p.Prime →
+      p ≠ 2 →
+      ¬ p ∣ a * n →
+      SolvableAX2EqNMod a n p →
+      (p : ℝ) ≤ pollackSizeBound a n →
+      ¬ Pa a n := by
+  obtain ⟨N0, hcount⟩ := many_candidates_of_pollack_size a ha
+  refine ⟨N0, ?_⟩
+  intro n p hn hp hp2 hpndvd hsol hpbound hPa
+  have hgt : 1 < (candidateKs a n p).card :=
+    hcount hn hp hp2 hpndvd hsol hpbound
+  have hle : (candidateKs a n p).card ≤ 1 :=
+    candidateKs_card_le_one ha hPa hp
+  exact not_lt_of_ge hle hgt
+
+
 /-! ## Square-case helpers based on the fixed coefficient `a` -/
 
 /-- If `a = v^2` and `u^2 = a*n`, with `a ≥ 1`, then `n` is also a square. -/
-lemma n_is_square_of_square_case_and_square_coeff
+private lemma n_is_square_of_square_case_and_square_coeff
     {a n u v : ℕ}
     (ha : 1 ≤ a)
     (haSq : a = v ^ 2)
@@ -1047,7 +1390,7 @@ lemma n_is_square_of_square_case_and_square_coeff
 
 /-- If `a = v^2`, `n = m^2`, and `m` is sufficiently larger than `v`, then `Pa a n` already fails
 at `k = 1`, since `n - a = (m-v)(m+v)` is composite. -/
-lemma not_Pa_of_large_square_difference
+private lemma not_Pa_of_large_square_difference
     {a n v m : ℕ}
     (haSq : a = v ^ 2)
     (hnSq : n = m ^ 2)
@@ -1085,35 +1428,35 @@ lemma not_Pa_of_large_square_difference
 
 /-- Square case, non-square coefficient branch.
 
-Here `a = v^2*d` with squarefree `d > 1`.  Since `d ∣ a`, Pollack applied to `m = 4*a*n`
-produces a prime `p` of Pollack-size with `p ∤ a*n`; the square identity `u^2 = a*n`
-then makes `a*x^2 ≡ n [MOD p]` solvable, and the standard counting contradiction applies. -/
+Here `a = v^2*d` with squarefree `d > 1`.  From `a = v^2*d` we get `4*d ∣ 4*a*n`, so
+Pollack applied with modulus `m = 4*a*n` produces a prime `p` of Pollack-size with `p ∤ a*n`;
+the square identity `u^2 = a*n`
+then makes `a*x^2 ≡ n [MOD p]` solvable, and the contradiction is delegated to
+`not_Pa_of_good_prime`. -/
 lemma square_case_nonsquare_coeff_impossible_of_coeff
     (a v d : ℕ)
     (ha : 1 ≤ a)
-    (hdSq : Squarefree d)
-    (hdGt : 1 < d)
+    (_hdSq : Squarefree d)
+    (_hdGt : 1 < d)
     (hadecomp : v ^ 2 * d = a) :
     ∃ N0 : ℕ, ∀ {n u : ℕ},
       N0 ≤ n →
       u ^ 2 = a * n →
       ¬ Pa a n := by
   obtain ⟨M0, hPollack⟩ := exists_small_prime_from_pollack
-  obtain ⟨Ncount, hcount⟩ := many_candidates_of_pollack_size a ha
-  refine ⟨max M0 Ncount, ?_⟩
-  intro n u hn hsq hPa
+  obtain ⟨Nbad, hbad⟩ := not_Pa_of_good_prime a ha
+  refine ⟨max M0 Nbad, ?_⟩
+  intro n u hn hsq
   have hm : M0 ≤ 4 * a * n := by
     exact le_trans (le_trans (le_max_left _ _) hn) (le_pollack_modulus ha)
-  have hdvd : 4 * d ∣ 4 * a * n := squarefree_coeff_dvd_pollack_modulus (n := n) hadecomp
-  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, _hres⟩ := hPollack hm hdGt hdSq hdvd
+  have hdvd : 4 * d ∣ 4 * a * n :=
+    squarefree_coeff_dvd_pollack_modulus (n := n) hadecomp
+  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, _hres⟩ := hPollack hm hdvd
   have hpndvd : ¬ p ∣ a * n := not_dvd_an_of_not_dvd_pollack_modulus hpndvdMod
   have hsol : SolvableAX2EqNMod a n p :=
     solvable_of_square_case hsq hp hpndvd
-  have hgt : 1 < (candidateKs a n p).card :=
-    hcount (le_trans (le_max_right _ _) hn) hp hp2 hpndvd hsol (by
-      simpa [pollackSizeBound] using hpbound)
-  have hle : (candidateKs a n p).card ≤ 1 := candidateKs_card_le_one ha hPa hp
-  exact not_lt_of_ge hle hgt
+  exact hbad (le_trans (le_max_right _ _) hn) hp hp2 hpndvd hsol (by
+    simpa [pollackSizeBound] using hpbound)
 
 /-- Square case, square coefficient branch.
 
@@ -1138,7 +1481,10 @@ lemma square_case_square_coeff_impossible_of_coeff
 
 /-! ## The two contradiction arguments -/
 
-/-- Case 1: the squarefree part `d` of `a*n` is `> 1`. -/
+/-- Case 1: the squarefree part `d` of `a*n` is `> 1`.
+
+The only nontrivial input is the existence of one good Pollack prime; once that is in hand,
+the rest is again delegated to `not_Pa_of_good_prime`. -/
 lemma case1_non_square_impossible
     (a : ℕ)
     (ha : 1 ≤ a) :
@@ -1149,21 +1495,19 @@ lemma case1_non_square_impossible
       u ^ 2 * d = a * n →
       ¬ Pa a n := by
   obtain ⟨M0, hPollack⟩ := exists_small_prime_from_pollack
-  obtain ⟨Ncount, hcount⟩ := many_candidates_of_pollack_size a ha
-  refine ⟨max M0 Ncount, ?_⟩
-  intro n u d hn hdSq hdGt hdecomp hPa
+  obtain ⟨Nbad, hbad⟩ := not_Pa_of_good_prime a ha
+  refine ⟨max M0 Nbad, ?_⟩
+  intro n u d hn _hdSq _hdGt hdecomp
   have hm : M0 ≤ 4 * a * n := by
     exact le_trans (le_trans (le_max_left _ _) hn) (le_pollack_modulus ha)
-  have hdvd : 4 * d ∣ 4 * a * n := squarefree_factor_dvd_pollack_modulus hdecomp
-  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, hres⟩ := hPollack hm hdGt hdSq hdvd
+  have hdvd : 4 * d ∣ 4 * a * n :=
+    squarefree_factor_dvd_pollack_modulus hdecomp
+  obtain ⟨p, hp, hp2, hpndvdMod, hpbound, hres⟩ := hPollack hm hdvd
   have hpndvd : ¬ p ∣ a * n := not_dvd_an_of_not_dvd_pollack_modulus hpndvdMod
   have hsol : SolvableAX2EqNMod a n p :=
     solvable_of_squarefree_part hdecomp hp hpndvd hres
-  have hgt : 1 < (candidateKs a n p).card :=
-    hcount (le_trans (le_max_right _ _) hn) hp hp2 hpndvd hsol (by
-      simpa [pollackSizeBound] using hpbound)
-  have hle : (candidateKs a n p).card ≤ 1 := candidateKs_card_le_one ha hPa hp
-  exact not_lt_of_ge hle hgt
+  exact hbad (le_trans (le_max_right _ _) hn) hp hp2 hpndvd hsol (by
+    simpa [pollackSizeBound] using hpbound)
 
 /-- Case 2: `a*n` is a square.
 
@@ -1214,7 +1558,7 @@ theorem erdos_1141_variant : Set.Finite {n : ℕ | Pa 1 n} := by
   simpa using erdos_1141_variant_general 1 (by decide : 1 ≤ 1)
 
 #print axioms erdos_1141_variant
--- 'erdos_1141_variant' depends on axioms: [propext, Classical.choice, Erdos1141.mertens_third_theorem, Erdos1141.pollack_theorem_1_3, Quot.sound]
+-- 'erdos_1141_variant' depends on axioms: [propext, Classical.choice, Erdos1141.mertens_third_theorem, Pollack17.theorem_1_3, Quot.sound]
 
 /-! ## Block Copied from Formal Conjectures -/
 
@@ -1280,6 +1624,6 @@ example : Erdos1141Prop 1722 := by
   decide +native
 
 #print axioms erdos_1141
--- 'erdos_1141' depends on axioms: [propext, Classical.choice, Erdos1141.mertens_third_theorem, Erdos1141.pollack_theorem_1_3, Quot.sound]
+-- 'erdos_1141' depends on axioms: [propext, Classical.choice, Erdos1141.mertens_third_theorem, Pollack17.theorem_1_3, Quot.sound]
 
 end Erdos1141
