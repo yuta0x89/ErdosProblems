@@ -1,0 +1,470 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb N}
+\newcommand{\PP}{A^{\mathrm{prim}}}
+
+\begin{document}
+
+\title{A Self-Contained Finite-Approximation and Primitive-Part Criterion Related to Erd\H{o}s Problem \#691}
+\author{}
+\date{}
+\maketitle
+
+\begin{abstract}
+Erd\H{o}s problem \#691 asks for a necessary and sufficient condition on a set
+\(A\subseteq\N\) such that its set of multiples
+\[
+M_A:=\{n\ge 1:\ a\mid n\text{ for some }a\in A\}
+\]
+has natural density \(1\).
+This note gives a precise finite-approximation answer:
+\(M_A\) has density \(1\) if and only if the densities of the finite truncations
+\(M_{A\cap[1,N]}\) tend to \(1\), equivalently if and only if
+\[
+\sup_{F\subseteq A,\,F\text{ finite}} d(M_F)=1.
+\]
+After passing to the primitive part \(\PP\), this becomes an explicit inclusion-exclusion criterion:
+if \(B_N:=\PP\cap[1,N]\) and
+\[
+R_N:=\sum_{F\subseteq B_N} (-1)^{|F|}\frac1{[F]},
+\qquad [\varnothing]=1,
+\]
+then \(R_N\) is the density of the integers divisible by none of the elements of \(B_N\), and
+\(M_A\) has density \(1\) if and only if \(R_N\to 0\).
+In the pairwise coprime case this recovers the classical criterion
+\[
+\sum_{a\in \PP}\frac1a=\infty.
+\]
+The point of the note is that the original problem statement and the exact reformulation proved here are both visible at the outset; the criterion is exact, but it is phrased in terms of finite truncations and primitive-part inclusion-exclusion rather than as a closed-form structural classification for arbitrary \(A\).
+\end{abstract}
+
+\section{Problem statement and main answer}
+
+\paragraph{Erd\H{o}s problem \#691.}
+Given \(A\subseteq \N\), let
+\[
+M_A=\{ n \geq 1 : a\mid n\text{ for some }a\in A\}
+\]
+be the set of multiples of \(A\).
+Find a necessary and sufficient condition on \(A\) for \(M_A\) to have density \(1\).
+
+\medskip
+A set \(A\subseteq\N\) for which \(M_A\) has natural density \(1\) is often called a \emph{Behrend sequence}.
+For convenience, for each \(N\ge 1\) we write
+\[
+A_N:=A\cap[1,N].
+\]
+
+\begin{theorem}[Finite-approximation criterion / direct answer to \#691]\label{thm:finite-approx}
+For \(A\subseteq\N\), the following are equivalent:
+\begin{enumerate}
+\item \(M_A\) has natural density \(1\);
+\item \(\lim_{N\to\infty} d(M_{A_N})=1\);
+\item \(\sup_{F\subseteq A,\,F\text{ finite}} d(M_F)=1\).
+\end{enumerate}
+Equivalently,
+\[
+M_A\text{ has density }1
+\iff
+\forall\varepsilon>0\ \exists\text{ finite }F\subseteq A
+\text{ such that } d(M_F)>1-\varepsilon.
+\]
+\end{theorem}
+
+\begin{corollary}[Primitive-part sieve form of the same answer]\label{cor:main-sieve-answer}
+Let
+\[
+\PP:=\{a\in A:\ \text{no }b\in A\text{ with }b<a\text{ divides }a\}
+\]
+be the primitive part of \(A\), let \(B_N:=\PP\cap[1,N]\), and define
+\[
+R_N:=\sum_{F\subseteq B_N} (-1)^{|F|}\frac1{[F]},
+\qquad [\varnothing]=1,
+\]
+where \([F]\) denotes the least common multiple of the elements of \(F\).
+Then \(R_N\) is the density of the integers divisible by none of the elements of \(B_N\), and
+\[
+M_A\text{ has natural density }1
+\iff
+R_N\to 0
+\qquad (N\to\infty).
+\]
+Equivalently,
+\[
+M_A\text{ has natural density }1
+\iff
+\sum_{\varnothing\neq F\subseteq B_N} (-1)^{|F|+1}\frac1{[F]}\to 1.
+\]
+\end{corollary}
+
+\begin{remark}[Scope of the criterion]
+Theorem~\ref{thm:finite-approx} and Corollary~\ref{cor:main-sieve-answer} provide an exact necessary and sufficient condition in the sense asked by the problem statement.
+However, the condition is expressed through finite truncations (or, equivalently, finite inclusion-exclusion on the primitive kernel) rather than through a simple intrinsic closed-form structural description of all Behrend sequences.
+Thus this note should be read as a self-contained exact reformulation and proof, not as a claim that the broader structural classification problem for arbitrary \(A\) has been reduced to a simple one-line characterization.
+\end{remark}
+
+\begin{remark}[Pairwise coprime case]
+If \(1\notin \PP\) and the elements of \(\PP\) are pairwise coprime, then for each \(N\),
+\[
+R_N=\prod_{a\in B_N}\left(1-\frac1a\right),
+\]
+so Corollary~\ref{cor:main-sieve-answer} reduces to
+\[
+M_A\text{ has density }1
+\iff
+\sum_{a\in \PP}\frac1a=\infty.
+\]
+In particular, if \(A\) is a set of primes, this recovers the classical criterion.
+\end{remark}
+
+\section{Setup}
+
+We write \(d(S)\) for the natural density of \(S\subseteq\N\) when it exists.
+For \(s>1\) and \(S\subseteq\N\) define
+\[
+\mu_s(S):=\frac1{\zeta(s)}\sum_{n\in S}\frac1{n^s}.
+\]
+
+\section{Two auxiliary lemmas}
+
+\begin{lemma}[Dirichlet averages detect natural density]\label{lem:density-to-Dirichlet}
+If \(B\subseteq\N\) has natural density \(\delta\), then
+\[
+\lim_{s\downarrow 1}\mu_s(B)=\delta.
+\]
+\end{lemma}
+
+\begin{proof}
+Let
+\[
+B(x):=\#(B\cap[1,x])=\delta x+r(x),
+\]
+where \(r(x)=o(x)\) as \(x\to\infty\).
+By summation by parts,
+\[
+\sum_{n\in B}\frac1{n^s}
+=s\int_1^\infty B(x)x^{-s-1}\,dx
+=\delta\,\frac{s}{s-1}+s\int_1^\infty r(x)x^{-s-1}\,dx.
+\]
+It therefore suffices to show that
+\[
+(s-1)\int_1^\infty r(x)x^{-s-1}\,dx\to 0.
+\]
+Fix \(\varepsilon>0\).
+Choose \(T\ge 1\) so large that \(|r(x)|\le \varepsilon x\) for all \(x\ge T\).
+Then, for \(1<s\le 2\),
+\[
+\begin{aligned}
+(s-1)\left|s\int_1^\infty r(x)x^{-s-1}\,dx\right|
+&\le s(s-1)\int_1^T |r(x)|x^{-s-1}\,dx
+   +s(s-1)\int_T^\infty |r(x)|x^{-s-1}\,dx \\
+&\le 2(s-1)\int_1^T |r(x)|x^{-2}\,dx
+   +2\varepsilon (s-1)\int_T^\infty x^{-s}\,dx \\
+&= 2(s-1)\int_1^T |r(x)|x^{-2}\,dx + 2\varepsilon T^{1-s}.
+\end{aligned}
+\]
+Letting \(s\downarrow 1\), the first term tends to \(0\) and the second is at most \(2\varepsilon\).
+Since \(\varepsilon\) is arbitrary, the whole expression tends to \(0\).
+Thus
+\[
+\sum_{n\in B}\frac1{n^s}
+=\delta\,\frac{s}{s-1}+o\!\left(\frac1{s-1}\right).
+\]
+Because \((s-1)\zeta(s)\to 1\) as \(s\downarrow 1\), we obtain \(\mu_s(B)\to \delta\).
+\end{proof}
+
+\begin{lemma}[Monotonicity for divisibility-upward sets]\label{lem:divisibility-monotone}
+If \(U\subseteq\N\) is upward-closed for divisibility, in the sense that
+\[
+n\in U \text{ and } n\mid m \implies m\in U,
+\]
+then
+\[
+1<s<t \implies \mu_t(U)\le \mu_s(U).
+\]
+Equivalently, \(\mu_s(U)\) is nondecreasing as \(s\downarrow 1\).
+\end{lemma}
+
+\begin{proof}
+Let \((V_p)_p\) be independent random variables, each uniform on \((0,1)\), indexed by the primes.
+For \(s>1\) define
+\[
+X_p^{(s)}:=\left\lfloor \frac{-\log V_p}{s\log p}\right\rfloor.
+\]
+Then, for \(k=0,1,2,\dots\),
+\[
+\mathbb P(X_p^{(s)}=k)
+=\mathbb P\!\left(p^{-s(k+1)}<V_p\le p^{-sk}\right)
+=(1-p^{-s})p^{-ks}.
+\]
+Also
+\[
+\sum_p \mathbb P(X_p^{(s)}\ge 1)=\sum_p p^{-s}<\infty,
+\]
+so by Borel--Cantelli only finitely many \(X_p^{(s)}\) are nonzero almost surely.
+Hence
+\[
+N_s:=\prod_p p^{X_p^{(s)}}
+\]
+is a well-defined random integer.
+Moreover, for each \(n\ge 1\),
+\[
+\mathbb P(N_s=n)
+=\prod_p (1-p^{-s})p^{-s v_p(n)}
+=\frac1{\zeta(s)n^s}.
+\]
+Therefore
+\[
+\mu_s(B)=\mathbb P(N_s\in B)
+\qquad (B\subseteq\N).
+\]
+
+Now if \(1<s<t\), then \(X_p^{(t)}\le X_p^{(s)}\) for every prime \(p\), hence
+\[
+N_t\mid N_s
+\qquad\text{almost surely}.
+\]
+Since \(U\) is upward-closed for divisibility, the implication
+\[
+N_t\in U \implies N_s\in U
+\]
+holds almost surely.
+Therefore
+\[
+\mu_t(U)=\mathbb P(N_t\in U)\le \mathbb P(N_s\in U)=\mu_s(U).
+\]
+\end{proof}
+
+\section{Proof of the finite-approximation criterion}
+
+\begin{proof}[Proof of Theorem~\ref{thm:finite-approx}]
+The equivalence of \textup{(2)} and \textup{(3)} is immediate: each \(A_N\) is finite, and every finite \(F\subseteq A\) is contained in \(A_N\) for all sufficiently large \(N\), so
+\[
+\sup_{N\ge 1} d(M_{A_N})=\sup_{F\subseteq A,\,F\text{ finite}} d(M_F).
+\]
+Since \(d(M_{A_N})\) is nondecreasing in \(N\), condition \textup{(2)} is equivalent to saying that this common supremum is \(1\).
+
+Assume first that \(M_A\) has density \(1\).
+By Lemma~\ref{lem:density-to-Dirichlet},
+\[
+\mu_s(M_A)\to 1
+\qquad (s\downarrow 1).
+\]
+Since
+\[
+M_A=\bigcup_{N\ge 1} M_{A_N},
+\]
+continuity from below for the probability measure \(\mu_s\) gives, for each \(s>1\),
+\[
+\mu_s(M_A)=\sup_{N\ge 1}\mu_s(M_{A_N}).
+\]
+For each \(N\), the set \(M_{A_N}\) is a finite union of arithmetic progressions, hence periodic, so its natural density exists.
+Also \(M_{A_N}\) is upward-closed for divisibility.
+Therefore Lemmas~\ref{lem:density-to-Dirichlet} and~\ref{lem:divisibility-monotone} imply that, for every \(s>1\),
+\[
+\mu_s(M_{A_N})
+\le
+\lim_{r\downarrow 1}\mu_r(M_{A_N})
+=
+ d(M_{A_N}).
+\]
+Taking the supremum over \(N\) gives
+\[
+\mu_s(M_A)\le \sup_{N\ge 1} d(M_{A_N})
+\qquad (s>1).
+\]
+Letting \(s\downarrow 1\) we obtain
+\[
+1\le \sup_{N\ge 1} d(M_{A_N})\le 1.
+\]
+Hence
+\[
+\sup_{N\ge 1} d(M_{A_N})=1.
+\]
+Since \(d(M_{A_N})\) is nondecreasing in \(N\), it follows that
+\[
+\lim_{N\to\infty} d(M_{A_N})=1.
+\]
+
+Conversely, assume that
+\[
+\lim_{N\to\infty} d(M_{A_N})=1.
+\]
+Because \(M_{A_N}\subseteq M_A\) for every \(N\), we have
+\[
+\underline d(M_A)\ge d(M_{A_N})
+\qquad (N\ge 1).
+\]
+Letting \(N\to\infty\) yields
+\[
+\underline d(M_A)=1.
+\]
+Therefore \(M_A\) has natural density \(1\).
+\end{proof}
+
+\section{Primitive-part sieve formulation}
+
+\begin{definition}
+The primitive part of \(A\) is
+\[
+\PP:=\{a\in A:\ \text{no }b\in A\text{ with }b<a\text{ divides }a\}.
+\]
+For a finite set \(F\subseteq\N\) let \([F]\) denote the least common multiple of the elements of \(F\), and set \([\varnothing]=1\).
+\end{definition}
+
+\begin{lemma}\label{lem:primitive-same}
+For every \(A\subseteq\N\) one has \(M_A=M_{\PP}\).
+\end{lemma}
+
+\begin{proof}
+The inclusion \(M_{\PP}\subseteq M_A\) is immediate.
+Conversely let \(n\in M_A\).
+Then \(a\mid n\) for some \(a\in A\).
+Among the elements of \(A\) dividing \(a\), choose a minimal one \(b\).
+Then no smaller element of \(A\) divides \(b\), so \(b\in \PP\).
+Since \(b\mid a\mid n\), we get \(n\in M_{\PP}\).
+Thus \(M_A\subseteq M_{\PP}\).
+\end{proof}
+
+\begin{corollary}[Explicit sieve criterion]\label{cor:sieve-criterion}
+For \(N\ge 1\), put
+\[
+B_N:=\PP\cap[1,N]
+\]
+and
+\[
+R_N:=\sum_{F\subseteq B_N} (-1)^{|F|}\frac1{[F]}.
+\]
+Then \(R_N\) is the density of the integers divisible by none of the elements of \(B_N\).
+Moreover,
+\[
+M_A\text{ has natural density }1
+\iff
+R_N\to 0
+\qquad (N\to\infty).
+\]
+Equivalently,
+\[
+M_A\text{ has natural density }1
+\iff
+\sum_{\varnothing\neq F\subseteq B_N} (-1)^{|F|+1}\frac1{[F]}\to 1.
+\]
+\end{corollary}
+
+\begin{proof}
+By Lemma~\ref{lem:primitive-same}, one has \(M_A=M_{\PP}\).
+For each \(N\), inclusion--exclusion gives
+\[
+d(M_{B_N})
+=\sum_{\varnothing\neq F\subseteq B_N} (-1)^{|F|+1}\frac1{[F]},
+\]
+because the intersection of the sets of multiples of the elements of \(F\) is the set of multiples of \([F]\).
+Therefore
+\[
+R_N=1-d(M_{B_N}),
+\]
+which is the density of the integers divisible by none of the elements of \(B_N\).
+Applying Theorem~\ref{thm:finite-approx} to the set \(\PP\), we obtain
+\[
+M_A\text{ has density }1
+\iff
+\lim_{N\to\infty} d(M_{B_N})=1
+\iff
+R_N\to 0.
+\]
+This proves the corollary.
+\end{proof}
+
+\section*{Notes on the Lean formalization}
+
+The file \texttt{Erdos691\_axiom\_free\_integrated.lean} is, in mathematical substance, a faithful formalization of the argument proved above: it establishes the same density-one criterion, the same primitive-part reduction, and the same pairwise-coprime corollary.
+What changes in Lean is not the mathematical content, but the choice of equivalent formulations and some bookkeeping conventions forced by the ambient type \(\mathbb N\) and by the available infrastructure in \texttt{mathlib}.
+For clarity, the following points should be kept in mind.
+
+\begin{enumerate}
+\item In Lean, \(\mathbb N\) contains \(0\).
+Accordingly, the formal multiples set is defined using only positive integers:
+\[
+M_A^{\mathrm{Lean}}
+=
+\{n\in\mathbb N:\ n>0\ \text{and}\ \exists a\in A,\ a>0,\ a\mid n\}.
+\]
+This is equivalent to the present definition
+\[
+M_A=\{n\ge 1:\ \exists a\in A,\ a\mid n\},
+\]
+so the possible presence of \(0\) in \(A\) is harmless and can be ignored.
+
+\item For the same reason, the formal density sequence is written with a harmless shift,
+\[
+\frac{\#(S\cap[1,N+1])}{N+1},
+\]
+and the Dirichlet sums are indexed by \(n+1\) rather than \(n\).
+These shifts are bookkeeping devices only; they do not change any limiting statement.
+
+\item Theorem~\ref{thm:finite-approx} is formalized primarily in the equivalent \(\varepsilon\)-form and sequence form:
+\[
+M_A\text{ has density }1
+\iff
+\forall\varepsilon>0\ \exists N\ \text{such that}\ d(M_{A\cap[1,N]})>1-\varepsilon,
+\]
+and
+\[
+M_A\text{ has density }1
+\iff
+d(M_{A\cap[1,N]})\to 1.
+\]
+The literal supremum statement
+\[
+\sup_{F\subseteq A,\,F\text{ finite}} d(M_F)=1
+\]
+is not the principal Lean theorem, but it is recovered from the same monotonicity argument and is mathematically equivalent to the formalized statements.
+
+\item In the forward implication of Theorem~\ref{thm:finite-approx}, the identity
+\[
+\mu_s(M_A)=\sup_{N\ge 1}\mu_s(M_{A_N})
+\]
+coming from continuity from below is replaced in Lean by a direct truncation lemma for the nonnegative Dirichlet series defining \(\mu_s\).
+This is an implementation-level reorganization of the same idea, not a change in the underlying argument.
+
+\item Lemma~\ref{lem:divisibility-monotone} is formalized in an equivalent but reorganized way.
+The finite case is first proved on the finite prime support of a truncation via a product-geometric measure on exponent vectors, and the general divisibility-upward case is then deduced from finite truncations.
+Thus the Lean file proves the same monotonicity statement as the probabilistic construction above, but it does not literally formalize the countable-product/Borel--Cantelli construction.
+
+\item The primitive part is formalized as the set of positive elements of \(A\) that are minimal for divisibility:
+\[
+A^{\mathrm{prim}}_{\mathrm{Lean}}
+=
+\{a\in A:\ a>0,\ \forall b\in A,\ (0<b\ \wedge\ b\mid a)\Rightarrow a\le b\}.
+\]
+On positive integers this is equivalent to the definition of \(\PP\) used above, so removing \(0\) or any non-primitive elements does not change \(M_A\).
+
+\item In the pairwise coprime remark, the hypothesis \(1\notin \PP\) should remain explicit in the formalized statement.
+If \(1\in A\), then trivially \(M_A=\{1,2,3,\dots\}\).
+Moreover, the divergence statement
+\[
+\sum_{a\in \PP}\frac1a=\infty
+\]
+is represented in Lean by either of the equivalent assertions
+\[
+\sum_{a\in \PP\cap[1,N]}\frac1a \to +\infty.
+\]
+Equivalently, Lean may express this by saying that the reciprocal-indicator sequence of \(\PP\) is not summable.
+\end{enumerate}
+
+\end{document}
