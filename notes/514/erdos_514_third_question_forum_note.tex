@@ -1,0 +1,508 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1.05in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{problem}{Problem}
+\newtheorem{remark}{Remark}
+
+\DeclareMathOperator{\Ree}{Re}
+\newcommand{\C}{\mathbb C}
+
+\title{A Negative Answer to the Universal-Function Version of Erd\H{o}s's Third Question in Problem 514}
+\author{}
+\date{April 28, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let \(f\) be a transcendental entire function and let
+\[
+M_f(r)=\max_{|z|=r}|f(z)|.
+\]
+Erd\H{o}s asked, among other things, whether there exists a path to infinity
+along which \(|f(z)|\) tends to infinity faster than a fixed function of
+\(M_f(|z|)\), for instance faster than a positive power of \(M_f(|z|)\).
+This note addresses only that third question, in the natural universal sense
+that the comparison function is fixed in advance and is independent of \(f\).
+We prove a negative answer in a strong form.  For every nondecreasing function
+\(\Phi(T)\to\infty\) there is a transcendental entire function \(f\) such that
+every path to infinity \(\gamma\) satisfies
+\[
+\liminf_{t\to\infty}
+\frac{|f(\gamma(t))|}{\Phi(M_f(|\gamma(t)|))}=0.
+\]
+Consequently no universal comparison function, even one growing much more
+slowly than every positive power, can be forced in Erd\H{o}s's third question.
+The proof is self-contained; the references are included only for provenance
+and context.
+\end{abstract}
+
+\section{The formulation addressed here}
+
+Let \(f\) be a transcendental entire function, that is, an entire function
+which is not a polynomial.  For \(r>0\), put
+\[
+M_f(r):=\max_{|z|=r}|f(z)|.
+\]
+A path to infinity is a continuous map
+\[
+\gamma:[0,\infty)\to\C
+\]
+such that
+\[
+|\gamma(t)|\to\infty \qquad (t\to\infty).
+\]
+
+Erd\H{o}s's third question in Problem 514 asks whether one can force
+\(|f(z)|\) to tend to infinity along a path faster than a fixed function of
+\(M_f(r)\); see \cite[p. 249]{Erdos1961} and the later problem list
+\cite{Erdos1982}.  We formalize the relevant positive assertion as follows.
+
+\begin{problem}[Universal comparison-function formulation]
+Does there exist a function \(\Psi:[T_0,\infty)\to(0,\infty)\), with
+\(\Psi(T)\to\infty\) as \(T\to\infty\), independent of \(f\), such that every
+transcendental entire function \(f\) has a path to infinity \(\gamma\) for which
+\[
+\frac{|f(\gamma(t))|}{\Psi(M_f(|\gamma(t)|))}\to\infty
+\qquad (t\to\infty)?
+\]
+\end{problem}
+
+All statements involving \(\Psi(M_f(r))\) or \(\Phi(M_f(r))\) are understood for
+sufficiently large \(r\), so that \(M_f(r)\ge T_0\).  This is harmless, since
+\(M_f(r)\to\infty\) for every nonconstant entire function.
+
+It is no loss to restrict attention to nondecreasing comparison functions.
+Indeed, suppose that a not-necessarily-monotone function
+\(\Psi:[T_0,\infty)\to(0,\infty)\), with \(\Psi(T)\to\infty\), were to work.
+Choose \(T_1\ge T_0\) so large that \(\Psi(S)\ge 1\) for all \(S\ge T_1\), and
+on \([T_1,\infty)\) define the lower envelope
+\[
+\Phi(T):=\inf_{S\ge T}\Psi(S).
+\]
+Then \(1\le\Phi\le\Psi\), the function \(\Phi\) is nondecreasing, and
+\(\Phi(T)\to\infty\).  The last assertion follows because, for each \(C>0\),
+we have \(\Psi(S)\ge C\) for all sufficiently large \(S\).  A path with
+\(|f(\gamma(t))|/\Psi(M_f(|\gamma(t)|))\to\infty\) would then also have
+\(|f(\gamma(t))|/\Phi(M_f(|\gamma(t)|))\to\infty\).
+Thus it suffices to rule out nondecreasing \(\Phi\)'s; discarding the initial
+interval \([T_0,T_1)\) is irrelevant for all asymptotic statements.
+
+We prove the following stronger negative statement.
+
+\begin{theorem}\label{thm:main}
+Let
+\[
+\Phi:[T_0,\infty)\to(0,\infty)
+\]
+be nondecreasing and satisfy \(\Phi(T)\to\infty\) as \(T\to\infty\).  Then there
+exists a transcendental entire function \(f\) such that for every path to
+infinity \(\gamma\),
+\[
+\liminf_{t\to\infty}
+\frac{|f(\gamma(t))|}{\Phi(M_f(|\gamma(t)|))}=0.
+\]
+Since the quotient is nonnegative whenever it is defined, the conclusion is
+equivalently the following epsilon form: for every path \(\gamma\), every
+\(\eta>0\), and every \(T_\ast\ge 0\), there exists \(t\ge T_\ast\), with
+\(M_f(|\gamma(t)|)\ge T_0\), such that
+\[
+\frac{|f(\gamma(t))|}{\Phi(M_f(|\gamma(t)|))}\le \eta.
+\]
+\end{theorem}
+
+\begin{corollary}\label{cor:third-question}
+There is no universal function \(\Psi(T)\to\infty\), independent of \(f\), for
+which every transcendental entire function has a path to infinity along which
+\[
+|f(z)|/\Psi(M_f(|z|))\to\infty.
+\]
+In particular, the parenthetical power-type case \(\Psi(T)=T^\varepsilon\),
+\(\varepsilon>0\), also fails.
+\end{corollary}
+
+\section{Construction of the function}
+
+Fix \(\Phi\) as in Theorem \ref{thm:main}.  Put
+\[
+\varepsilon_n:=(-1)^{n+1},\qquad n=1,2,3,\ldots .
+\]
+Thus \(\varepsilon_n=1\) for odd \(n\) and \(\varepsilon_n=-1\) for even \(n\).
+
+Choose
+\[
+x_0>0
+\]
+so large that \(e^x/2\ge T_0\) whenever \(x\ge x_0\).  For \(x\ge x_0\), define
+\[
+A(x):=\min\left\{\Phi(e^x/2),\frac{e^x}{4}\right\}.
+\]
+Since both \(\Phi(e^x/2)\) and \(e^x/4\) tend to infinity, we have
+\[
+A(x)\to\infty \qquad (x\to\infty).
+\]
+
+We shall construct positive real numbers
+\[
+r_n,\qquad X_n,\qquad \lambda_n,\qquad a_n
+\]
+with \(r_n\to\infty\), \(X_n\to\infty\), and
+\[
+a_n=\lambda_n r_n-X_n.
+\]
+The entire function will be
+\[
+ f(z):=\sum_{n=1}^{\infty}
+ \exp(-a_n+\varepsilon_n\lambda_n z).
+\]
+
+The parameters are chosen so that the following off-diagonal estimates hold
+for all \(m\ne n\):
+\begin{equation}\label{eq:offdiag}
+\exp(-a_m+\lambda_m r_n)
+\le
+2^{-m-n-4}A(X_n).
+\end{equation}
+We also require
+\begin{equation}\label{eq:AXn-large}
+A(X_n)\ge 2^{n+4},
+\qquad
+X_n\ge n\log r_n+n,
+\qquad
+X_n\ge x_0,
+\end{equation}
+and
+\begin{equation}\label{eq:an-large}
+a_n\ge n^2+\lambda_n n.
+\end{equation}
+
+\begin{lemma}\label{lem:choice}
+The sequences \(r_n,X_n,\lambda_n,a_n\) can be chosen so that
+\eqref{eq:offdiag}, \eqref{eq:AXn-large}, and \eqref{eq:an-large} hold.
+\end{lemma}
+
+\begin{proof}
+We argue by induction.  Suppose that the parameters have already been chosen
+for indices \(<n\).  Choose
+\[
+r_n>\max\{r_{n-1},n\},
+\]
+with the convention that there is no restriction involving \(r_0\) when
+\(n=1\).
+
+The quantities
+\[
+\exp(-a_m+\lambda_m r_n),\qquad m<n,
+\]
+are now fixed and finite.  Since \(A(x)\to\infty\), we may choose \(X_n\) so
+large that \eqref{eq:AXn-large} holds and, for every \(m<n\),
+\[
+\exp(-a_m+\lambda_m r_n)
+\le
+2^{-m-n-4}A(X_n).
+\]
+This gives the off-diagonal estimates in which already constructed terms are
+evaluated at the new radius \(r_n\).
+
+It remains to make the new term small at all previous radii.  For each
+\(k<n\), the inequality
+\[
+\exp(X_n-\lambda_n(r_n-r_k))
+\le
+2^{-n-k-4}A(X_k)
+\]
+will hold once \(\lambda_n\) is sufficiently large, because \(r_n-r_k>0\).
+Since there are only finitely many such \(k\), one value of \(\lambda_n\) can
+make all these inequalities true.  Increasing \(\lambda_n\) further if
+necessary, we also ensure
+\[
+\lambda_n(r_n-n)\ge X_n+n^2,
+\]
+which is possible because \(r_n>n\).  Now set
+\[
+a_n:=\lambda_n r_n-X_n.
+\]
+Then
+\[
+a_n=\lambda_n r_n-X_n\ge n^2+\lambda_n n,
+\]
+so \eqref{eq:an-large} holds, and for \(k<n\),
+\[
+\exp(-a_n+\lambda_n r_k)
+=
+\exp(X_n-\lambda_n(r_n-r_k))
+\le
+2^{-n-k-4}A(X_k).
+\]
+Thus all required estimates involving index \(n\) and previous indices hold.
+The induction is complete.
+\end{proof}
+
+\section{The function is transcendental entire}
+
+Let
+\[
+ f(z)=\sum_{n=1}^{\infty}
+ \exp(-a_n+\varepsilon_n\lambda_n z)
+\]
+be the function constructed above.
+
+First we show that the series converges locally uniformly.  Fix \(R>0\) and
+suppose \(|z|\le R\).  If \(n>R\), then by \eqref{eq:an-large},
+\[
+-a_n+\lambda_n |z|
+\le
+-a_n+\lambda_n R
+\le
+-a_n+\lambda_n n
+\le
+-n^2.
+\]
+Hence
+\[
+\left|\exp(-a_n+\varepsilon_n\lambda_n z)\right|
+\le e^{-n^2}
+\]
+for all sufficiently large \(n\), uniformly on \(|z|\le R\).  Therefore the
+series converges uniformly on compact subsets of \(\C\), and \(f\) is entire.
+
+Next we show that \(f\) is not a polynomial.  At the point
+\[
+z_n:=\varepsilon_n r_n,
+\qquad |z_n|=r_n,
+\]
+the \(n\)-th term equals
+\[
+\exp(-a_n+\varepsilon_n\lambda_n z_n)
+=
+\exp(-a_n+\lambda_n r_n)
+=e^{X_n}.
+\]
+For the other terms, \eqref{eq:offdiag} gives
+\[
+\sum_{m\ne n}
+\left|\exp(-a_m+\varepsilon_m\lambda_m z_n)\right|
+\le
+\sum_{m\ne n}
+\exp(-a_m+\lambda_m r_n)
+\le
+2^{-n-4}A(X_n).
+\]
+Since \(A(X_n)\le e^{X_n}/4\), this is at most \(e^{X_n}/16\).  Consequently,
+\begin{equation}\label{eq:M-lower}
+M_f(r_n)
+\ge |f(z_n)|
+\ge \frac12 e^{X_n}.
+\end{equation}
+Together with \eqref{eq:AXn-large}, this gives
+\[
+M_f(r_n)
+\ge
+\frac12 e^{X_n}
+\ge
+\frac12 e^n r_n^n.
+\]
+If \(f\) were a polynomial of degree \(d\), then \(M_f(r)=O(r^d)\), which is
+incompatible with the last estimate along the sequence \(r_n\) as \(n\to\infty\).
+Thus \(f\) is transcendental entire.
+
+\section{Smallness on the wrong half-plane}
+
+Fix \(n\), and let \(|z|=r_n\).  We call the half-plane
+\[
+\varepsilon_n\Ree z>0
+\]
+the correct half-plane for the \(n\)-th circle.  Thus the correct half-plane is
+the right half-plane for odd \(n\) and the left half-plane for even \(n\).
+
+Suppose \(|z|=r_n\) and \(\varepsilon_n\Ree z\le 0\).  Then the main term
+satisfies
+\[
+\left|\exp(-a_n+\varepsilon_n\lambda_n z)\right|
+=
+\exp(-a_n+\varepsilon_n\lambda_n\Ree z)
+\le e^{-a_n}
+\le 1.
+\]
+The other terms are bounded by
+\[
+\sum_{m\ne n}
+\left|\exp(-a_m+\varepsilon_m\lambda_m z)\right|
+\le
+\sum_{m\ne n}\exp(-a_m+\lambda_m r_n)
+\le
+2^{-n-4}A(X_n).
+\]
+By \eqref{eq:AXn-large}, \(A(X_n)\ge 2^{n+4}\), and hence
+\[
+1\le 2^{-n-4}A(X_n).
+\]
+Therefore
+\[
+|f(z)|
+\le
+2^{-n-3}A(X_n).
+\]
+On the other hand, from \eqref{eq:M-lower} and the monotonicity of \(\Phi\),
+\[
+\Phi(M_f(r_n))
+\ge
+\Phi(e^{X_n}/2)
+\ge
+A(X_n),
+\]
+where \(e^{X_n}/2\ge T_0\) follows from \(X_n\ge x_0\).  We have proved the key
+estimate
+\begin{equation}\label{eq:wrong-halfplane}
+|z|=r_n,
+\quad
+\varepsilon_n\Ree z\le 0
+\quad\Longrightarrow\quad
+|f(z)|
+\le
+2^{-n-3}\Phi(M_f(r_n)).
+\end{equation}
+
+\section{Smallness on the imaginary axis}
+
+For any real \(y\),
+\[
+\left|\exp(-a_n+\varepsilon_n\lambda_n i y)\right|=e^{-a_n}.
+\]
+Thus, by \eqref{eq:an-large},
+\[
+|f(iy)|
+\le
+\sum_{n=1}^{\infty} e^{-a_n}
+\le
+\sum_{n=1}^{\infty} e^{-n^2}
+=:
+B<\infty.
+\]
+Since \(f\) is transcendental entire, in particular nonconstant, \(M_f(r)\to
+\infty\).  Hence \(\Phi(M_f(r))\to\infty\).  It follows that
+\begin{equation}\label{eq:imag-axis}
+\frac{|f(iy)|}{\Phi(M_f(|y|))}
+\to 0
+\qquad (|y|\to\infty),
+\end{equation}
+where the quotient is understood for sufficiently large \(|y|\), so that
+\(M_f(|y|)\ge T_0\).
+
+\section{Every path has small values infinitely often}
+
+Let \(\gamma:[0,\infty)\to\C\) be any path to infinity.  Since \(r_n\to\infty\),
+for every sufficiently large \(n\) the path meets the circle \(|z|=r_n\).  Let
+\[
+\tau_n:=\inf\{t\ge 0: |\gamma(t)|=r_n\}
+\]
+be the first hitting time.  For all large \(n\), \(\tau_n\) is finite,
+\(\tau_n<\tau_{n+1}\), and \(\tau_n\to\infty\).  These facts follow from the
+continuity of \(|\gamma(t)|\) and the condition \(|\gamma(t)|\to\infty\).
+
+There are two cases.
+
+First suppose that for infinitely many \(n\),
+\[
+\varepsilon_n\Ree \gamma(\tau_n)\le 0.
+\]
+For those \(n\), estimate \eqref{eq:wrong-halfplane} gives
+\[
+\frac{|f(\gamma(\tau_n))|}
+{\Phi(M_f(|\gamma(\tau_n)|))}
+\le
+2^{-n-3}\to 0.
+\]
+Thus the desired liminf is zero.
+
+It remains to consider the opposite case.  Then, for all sufficiently large
+\(n\),
+\[
+\varepsilon_n\Ree \gamma(\tau_n)>0.
+\]
+Since \(\varepsilon_n\) changes sign with \(n\), the real parts
+\(\Ree \gamma(\tau_n)\) and \(\Ree \gamma(\tau_{n+1})\) have opposite signs for
+all large \(n\).  By continuity of \(\gamma\), there exists
+\[
+s_n\in[\tau_n,\tau_{n+1}]
+\]
+such that
+\[
+\Ree \gamma(s_n)=0.
+\]
+Write \(\gamma(s_n)=iy_n\), where \(y_n\in\mathbb R\).  Since
+\(s_n\ge\tau_n\to\infty\) and \(|\gamma(t)|\to\infty\), we have
+\(|y_n|=|\gamma(s_n)|\to\infty\).  Hence \eqref{eq:imag-axis} gives
+\[
+\frac{|f(\gamma(s_n))|}
+{\Phi(M_f(|\gamma(s_n)|))}
+=
+\frac{|f(iy_n)|}{\Phi(M_f(|y_n|))}
+\to 0.
+\]
+Again the desired liminf is zero.
+
+Since \(\gamma\) was arbitrary, Theorem \ref{thm:main} follows.
+
+\section{Consequences and formalization note}
+
+Theorem \ref{thm:main} proves Corollary \ref{cor:third-question} as follows.
+Let \(\Psi(T)\to\infty\) be any proposed fixed comparison function.  If
+\(\Psi\) is nondecreasing, applying Theorem \ref{thm:main} directly with
+\(\Phi=\Psi\) produces a transcendental entire function \(f\) for which every
+path to infinity has
+\[
+\liminf_{t\to\infty}
+\frac{|f(\gamma(t))|}{\Psi(M_f(|\gamma(t)|))}=0.
+\]
+For a nonmonotone \(\Psi\), apply Theorem \ref{thm:main} instead to the
+nondecreasing lower envelope \(\Phi\) constructed in the first section.  Since
+\(\Phi\le\Psi\) on the relevant tail, any sequence of points for which the
+quotient with denominator \(\Phi(M_f(|z|))\) tends to zero also has the quotient
+with denominator \(\Psi(M_f(|z|))\) tending to zero.  Hence no path can make the
+\(\Psi\)-quotient tend to infinity.  This rules out the universal
+comparison-function version of the third question in Erd\H{o}s Problem 514.
+
+The note does not reprove the first two questions in Problem 514; it is only a
+self-contained proof of the negative answer to the third, comparison-function
+question.  The accompanying Lean 4 file \texttt{Erdos514.lean}, using
+\texttt{leanprover/lean4:v4.28.0} and the corresponding mathlib version,
+formalizes the theorem in the equivalent epsilon form.  In that file the main
+circle-maximum theorem is \texttt{comparison\_negative\_sphere}; the predicate
+\texttt{FrequentlySmall} is the epsilon formulation above; and the circle
+maximum \texttt{Ms} matches \(M_f(r)=\max_{|z|=r}|f(z)|\).  The Lean proof first
+establishes a closed-disk version, \texttt{comparison\_negative\_closedDisk},
+and then identifies it with the circle version by the maximum-modulus principle.
+The Lean file treats \(\Phi\) as a total function \(\mathbb R\to\mathbb R\), with
+monotonicity and positivity assumed only on \([T_0,\infty)\); this is equivalent
+to the partial-domain formulation used here after extending \(\Phi\) arbitrarily
+outside the relevant tail.
+
+\begin{thebibliography}{9}
+
+\bibitem{Erdos1961}
+P. Erd\H{o}s,
+\emph{Some unsolved problems},
+A Magyar Tudom\'{a}nyos Akad\'{e}mia Matematikai Kutat\'{o} Int\'{e}zet\'{e}nek
+K\"ozlem\'{e}nyei \textbf{6} (1961), 221--254.
+
+\bibitem{Erdos1982}
+P. Erd\H{o}s,
+\emph{Some of my favourite problems which recently have been solved},
+in \emph{Proceedings of the International Mathematical Conference, Singapore
+1981}, North-Holland Math. Stud. \textbf{74}, North-Holland, Amsterdam, 1982,
+59--79.
+
+\end{thebibliography}
+
+\end{document}
