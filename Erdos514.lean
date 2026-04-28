@@ -4,7 +4,7 @@ import Mathlib
 # Lean formalization of `erdos_514_comparison_note.tex`
 
 This file formalizes the construction and comparison estimates from
-`erdos_514_comparison_note.tex`.
+`https://github.com/yuta0x89/ErdosProblems/blob/main/notes/514/erdos_514_third_question_forum_note.tex`.
 
 The main design choices are:
 
