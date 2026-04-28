@@ -1,7 +1,7 @@
 import Mathlib
 
 /-!
-# Lean formalization of `erdos_514_comparison_note.tex`
+# Lean formalization of `erdos_514_third_question_forum_note.tex`
 
 This file formalizes the construction and comparison estimates from
 `https://github.com/yuta0x89/ErdosProblems/blob/main/notes/514/erdos_514_third_question_forum_note.tex`.
